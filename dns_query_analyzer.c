@@ -3,8 +3,6 @@
 #include <linux/module.h>
 // Required for kernel log level definitions such as KERN_INFO
 #include <linux/kernel.h>
-// Required for syslog definitions (though KERN_LOCAL0 is not standard for printk)
-#include <linux/syslog.h>
 // Required for module initialization/cleanup macros (__init, __exit)
 #include <linux/init.h>
 // Required for the definition of the sk_buff structure

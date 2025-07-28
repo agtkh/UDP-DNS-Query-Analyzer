@@ -91,20 +91,20 @@ When a DNS query occurs on the system, a log entry like the following will appea
 
 ### How to Log to a Dedicated File (using rsyslog)
 
-By default, the module logs to the standard kernel log (`dmesg`). If you want to redirect these logs to a separate file, you can use `rsyslog`. This module uses the `local0` facility, allowing for easy filtering.
+By default, the module logs to the standard kernel log (`dmesg`). If you want to redirect these logs to a separate file, you can configure `rsyslog` to filter the messages based on their content. All logs from this module contain the unique prefix `[DNS Query]`, which makes them easy to identify.
 
 #### 1. Configure rsyslog
 
-Create a new configuration file to tell `rsyslog` where to save the logs.
+Create a new configuration file to tell `rsyslog` where to save the logs. This rule will match any log message containing `[DNS Query]` and write it to `/var/log/dns_query.log`.
 
 ```sh
 sudo bash -c 'cat > /etc/rsyslog.d/50-dns-analyzer.conf << EOL
 # Rule for DNS Query Analyzer
-if \$syslogfacility-text == 'local0' then /var/log/dns_query.log
+if \$msg contains "[DNS Query]" then /var/log/dns_query.log
 & ~
 EOL'
 ```
-This rule directs all logs from `local0` to `/var/log/dns_query.log` and stops them from appearing in other log files.
+The `& ~` at the end stops the matched message from being processed by other rules, preventing duplicate logs in other system files (like `/var/log/syslog` or `/var/log/messages`).
 
 #### 2. Restart rsyslog
 

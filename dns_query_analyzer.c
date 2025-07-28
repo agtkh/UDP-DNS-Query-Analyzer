@@ -61,6 +61,7 @@ static int parse_dns_qname(const unsigned char *qname_ptr, const unsigned char *
 {
     int domain_len = 0;
     const unsigned char *p = qname_ptr;
+    unsigned int label_len;
 
     while (*p != 0) {
         // Check for pointer compression (common in DNS, but not supported here for simplicity)
@@ -70,7 +71,7 @@ static int parse_dns_qname(const unsigned char *qname_ptr, const unsigned char *
         }
 
         // Get the length of the label
-        unsigned int label_len = *p;
+        label_len = *p;
         p++;
 
         // Prevent out-of-bounds access to the payload

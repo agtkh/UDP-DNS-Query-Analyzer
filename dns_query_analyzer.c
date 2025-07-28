@@ -3,7 +3,7 @@
 #include <linux/module.h>
 // Required for kernel log level definitions such as KERN_INFO
 #include <linux/kernel.h>
-// Required for syslog definitions such as KERN_LOCAL0
+// Required for syslog definitions (though KERN_LOCAL0 is not standard for printk)
 #include <linux/syslog.h>
 // Required for module initialization/cleanup macros (__init, __exit)
 #include <linux/init.h>
@@ -65,7 +65,7 @@ static int parse_dns_qname(const unsigned char *qname_ptr, const unsigned char *
     while (*p != 0) {
         // Check for pointer compression (common in DNS, but not supported here for simplicity)
         if ((*p & 0xc0) == 0xc0) {
-            printk(KERN_LOCAL0 | KERN_WARNING "DNS QNAME parsing failed: pointer compression is not supported.\n");
+            printk(KERN_WARNING "DNS QNAME parsing failed: pointer compression is not supported.\n");
             return -1;
         }
 
@@ -75,13 +75,13 @@ static int parse_dns_qname(const unsigned char *qname_ptr, const unsigned char *
 
         // Prevent out-of-bounds access to the payload
         if (p + label_len > payload_end) {
-            printk(KERN_LOCAL0 | KERN_WARNING "DNS QNAME parsing failed: label length exceeds payload.\n");
+            printk(KERN_WARNING "DNS QNAME parsing failed: label length exceeds payload.\n");
             return -1;
         }
 
         // Prevent overflow of the output buffer
         if (domain_len + label_len + 1 > out_len) {
-            printk(KERN_LOCAL0 | KERN_WARNING "DNS QNAME parsing failed: output buffer is too small.\n");
+            printk(KERN_WARNING "DNS QNAME parsing failed: output buffer is too small.\n");
             return -1;
         }
 
@@ -154,7 +154,7 @@ static unsigned int dns_analyzer_hook(void *priv, struct sk_buff *skb, const str
         // Parse the QNAME
         if (parse_dns_qname(qname_ptr, payload_end, domain_name, sizeof(domain_name)) == 0) {
             // Output the parsing result to the kernel log
-            printk(KERN_LOCAL0 | KERN_INFO "[DNS Query] src: %pI4 dst: %pI4 QNAME: %s\n",
+            printk(KERN_INFO "[DNS Query] src: %pI4 dst: %pI4 QNAME: %s\n",
                    &ip_header->saddr, &ip_header->daddr, domain_name);
         }
     }
@@ -170,7 +170,7 @@ static unsigned int dns_analyzer_hook(void *priv, struct sk_buff *skb, const str
  */
 static int __init dns_analyzer_init(void)
 {
-    printk(KERN_LOCAL0 | KERN_INFO "DNS Query Analyzer: module loaded.\n");
+    printk(KERN_INFO "DNS Query Analyzer: module loaded.\n");
 
     // Netfilter hook settings
     nf_dns_hook_ops.hook = dns_analyzer_hook;
@@ -181,7 +181,7 @@ static int __init dns_analyzer_init(void)
 
     // Register the Netfilter hook
     if (nf_register_net_hook(&init_net, &nf_dns_hook_ops)) {
-        printk(KERN_LOCAL0 | KERN_ERR "DNS Query Analyzer: failed to register netfilter hook.\n");
+        printk(KERN_ERR "DNS Query Analyzer: failed to register netfilter hook.\n");
         return -1;
     }
 
@@ -195,7 +195,7 @@ static void __exit dns_analyzer_exit(void)
 {
     // Unregister the registered Netfilter hook
     nf_unregister_net_hook(&init_net, &nf_dns_hook_ops);
-    printk(KERN_LOCAL0 | KERN_INFO "DNS Query Analyzer: module unloaded.\n");
+    printk(KERN_INFO "DNS Query Analyzer: module unloaded.\n");
 }
 
 // Register the module's initialization and exit functions

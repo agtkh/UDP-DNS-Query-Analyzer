@@ -101,10 +101,10 @@ Create a new configuration file to tell `rsyslog` where to save the logs. This r
 sudo bash -c 'cat > /etc/rsyslog.d/50-dns-analyzer.conf << EOL
 # Rule for DNS Query Analyzer
 if \$msg contains "[DNS Query]" then /var/log/dns_query.log
-& ~
+& stop
 EOL'
 ```
-The `& ~` at the end stops the matched message from being processed by other rules, preventing duplicate logs in other system files (like `/var/log/syslog` or `/var/log/messages`).
+The `& stop` at the end stops the matched message from being processed by other rules, preventing duplicate logs in other system files (like `/var/log/syslog` or `/var/log/messages`).
 
 #### 2. Restart rsyslog
 

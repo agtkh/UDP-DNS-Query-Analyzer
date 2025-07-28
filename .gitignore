@@ -1,0 +1,15 @@
+# Compiled files
+*.o
+*.ko
+*.mod.c
+*.mod
+
+# Build artifacts
+modules.order
+Module.symvers
+.tmp_versions/
+.*.cmd
+.cache.mk
+
+# Ignore the build directory itself if one is created
+build/
